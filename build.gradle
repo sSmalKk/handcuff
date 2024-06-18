@@ -52,7 +52,10 @@ minecraft {
                 }
             }
         }
+    }    mixin {
+        add sourceSets.main, "mixins.handcuffmod.refmap.json"
     }
+
 }
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
@@ -71,6 +74,8 @@ repositories {
 dependencies {
     minecraft 'net.minecraftforge:forge:1.16.5-36.2.34'
     implementation fg.deobf('software.bernie.geckolib:geckolib-forge-1.16.5:3.0.106')
+    implementation 'org.spongepowered:mixin:0.8.5'
+
 }
 
 jar {

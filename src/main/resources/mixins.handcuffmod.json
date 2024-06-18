@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.ssmalkk.handcuffmod.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "mixins.handcuffmod.refmap.json",
+  "mixins": [
+    "HandcuffItemMixin"
+  ],
+  "client": [],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

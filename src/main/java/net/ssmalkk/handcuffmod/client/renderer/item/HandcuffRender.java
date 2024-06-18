@@ -8,5 +8,4 @@ public class HandcuffRender extends GeoItemRenderer<HandcuffItem> {
 	public HandcuffRender() {
 		super(new HandcuffModel());
 	}
-
 }
