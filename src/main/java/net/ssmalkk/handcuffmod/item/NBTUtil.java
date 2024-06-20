@@ -1,52 +1,45 @@
 package net.ssmalkk.handcuffmod.item;
 
-import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 
 public class NBTUtil {
-    public static void setLockData(ItemStack stack, String key, String value) {
-        CompoundNBT nbt = stack.getOrCreateTag();
-        nbt.putString(key, value);
-        stack.setTag(nbt);
-    }
+    private static final String LOCKER_KEY = "Locker";
+    private static final String LOCKED_ENTITY_KEY = "LockedEntity";
+    private static final String LOCK_KEY = "LockKey";
 
-    public static String getLockData(ItemStack stack, String key) {
-        CompoundNBT nbt = stack.getTag();
-        return nbt != null && nbt.contains(key) ? nbt.getString(key) : "";
-    }
-
-    public static void setLockKey(ItemStack stack, String key) {
-        setLockData(stack, "lockKey", key);
-    }
-
-    public static String getLockKey(ItemStack stack) {
-        return getLockData(stack, "lockKey");
-    }
-
-    public static void setLockedEntity(ItemStack stack, String entity) {
-        setLockData(stack, "lockedEntity", entity);
-    }
-
-    public static String getLockedEntity(ItemStack stack) {
-        return getLockData(stack, "lockedEntity");
-    }
-
-    public static void setLocker(ItemStack stack, String entity) {
-        setLockData(stack, "locker", entity);
+    public static void setLocker(ItemStack stack, String locker) {
+        CompoundNBT tag = stack.getOrCreateTag();
+        tag.putString(LOCKER_KEY, locker);
     }
 
     public static String getLocker(ItemStack stack) {
-        return getLockData(stack, "locker");
+        CompoundNBT tag = stack.getTag();
+        return tag != null ? tag.getString(LOCKER_KEY) : "";
+    }
+
+    public static void setLockedEntity(ItemStack stack, String lockedEntity) {
+        CompoundNBT tag = stack.getOrCreateTag();
+        tag.putString(LOCKED_ENTITY_KEY, lockedEntity);
+    }
+
+    public static String getLockedEntity(ItemStack stack) {
+        CompoundNBT tag = stack.getTag();
+        return tag != null ? tag.getString(LOCKED_ENTITY_KEY) : "";
+    }
+
+    public static void setLockKey(ItemStack stack, String lockKey) {
+        CompoundNBT tag = stack.getOrCreateTag();
+        tag.putString(LOCK_KEY, lockKey);
+    }
+
+    public static String getLockKey(ItemStack stack) {
+        CompoundNBT tag = stack.getTag();
+        return tag != null ? tag.getString(LOCK_KEY) : "";
     }
 
     public static void setMain(ItemStack stack, boolean isMain) {
-        CompoundNBT nbt = stack.getOrCreateTag();
-        nbt.putBoolean("main", isMain);
-        stack.setTag(nbt);
-    }
-
-    public static boolean isMain(ItemStack stack) {
-        CompoundNBT nbt = stack.getTag();
-        return nbt != null && nbt.contains("main") && nbt.getBoolean("main");
+        CompoundNBT tag = stack.getOrCreateTag();
+        tag.putBoolean("IsMain", isMain);
     }
 }

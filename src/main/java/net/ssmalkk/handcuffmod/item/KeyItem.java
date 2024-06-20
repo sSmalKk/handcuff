@@ -22,17 +22,17 @@ public class KeyItem extends Item {
         ItemStack keyStack = player.getHeldItem(hand);
 
         if (!world.isRemote) {
-            // Find the target entity within range
-            LivingEntity target = findTargetEntity(player);
-            if (target != null) {
-                // Try to unlock the target entity
-                if (unlockEntity(player, target, keyStack)) {
-                    return ActionResult.resultSuccess(keyStack);
-                }
+            ItemStack offhandItem = player.getHeldItem(Hand.OFF_HAND);
+            if (isHandcuff(offhandItem)) {
+                // Remove handcuffs and clear NBT
+                clearHandcuffs(player, offhandItem);
+                transformKeyToHandcuffsOpen(keyStack);
             } else {
-                // Try to unlock the player themselves
-                if (unlockEntity(player, player, keyStack)) {
-                    return ActionResult.resultSuccess(keyStack);
+                LivingEntity target = findTargetEntity(player);
+                if (target != null && isHandcuff(target.getHeldItem(Hand.OFF_HAND))) {
+                    // Remove handcuffs and clear NBT
+                    clearHandcuffs(target, target.getHeldItem(Hand.OFF_HAND));
+                    transformKeyToHandcuffsOpen(keyStack);
                 }
             }
         }
@@ -40,39 +40,35 @@ public class KeyItem extends Item {
         return ActionResult.resultPass(keyStack);
     }
 
-    // Function to find a target entity within range
+    private boolean isHandcuff(ItemStack stack) {
+        return stack.getItem() == ItemRegistry.HANDCUFF.get();
+    }
+
+    private void clearHandcuffs(LivingEntity entity, ItemStack handcuffStack) {
+        NBTUtil.setLocker(handcuffStack, "");
+        NBTUtil.setLockedEntity(handcuffStack, "");
+        NBTUtil.setLockKey(handcuffStack, "");
+        entity.setHeldItem(Hand.OFF_HAND, ItemStack.EMPTY);
+    }
+
+    private void transformKeyToHandcuffsOpen(ItemStack keyStack) {
+        if (NBTUtil.getLocker(keyStack).isEmpty() && NBTUtil.getLockedEntity(keyStack).isEmpty()) {
+            ItemStack handcuffsOpen = new ItemStack(ItemRegistry.HANDCUFFSOPEN.get());
+            handcuffsOpen.setTag(keyStack.getTag());
+            keyStack.shrink(1);
+        }
+    }
+
     private LivingEntity findTargetEntity(PlayerEntity player) {
         World world = player.world;
         AxisAlignedBB aabb = new AxisAlignedBB(player.getPosX() - 5, player.getPosY() - 5, player.getPosZ() - 5, player.getPosX() + 5, player.getPosY() + 5, player.getPosZ() + 5);
         List<LivingEntity> entities = world.getEntitiesWithinAABB(LivingEntity.class, aabb);
 
         for (LivingEntity entity : entities) {
-            if ((entity instanceof PlayerEntity && entity != player) || entity instanceof VillagerEntity || entity instanceof ZombieEntity || entity instanceof SkeletonEntity) {
+            if (entity instanceof PlayerEntity && entity != player) {
                 return entity;
             }
         }
         return null;
-    }
-
-    // Function to unlock an entity
-    private boolean unlockEntity(PlayerEntity player, LivingEntity target, ItemStack keyStack) {
-        ItemStack offhandItem = target.getHeldItem(Hand.OFF_HAND);
-
-        if (offhandItem.getItem() == ItemRegistry.HANDCUFF.get() || offhandItem.getItem() == ItemRegistry.HANDCUFFS.get()) {
-            String lockKey = NBTUtil.getLockKey(offhandItem);
-            String keyLockKey = NBTUtil.getLockKey(keyStack);
-
-            if (lockKey.equals(keyLockKey)) {
-                // Remove the handcuffs from the offhand slot
-                target.setHeldItem(Hand.OFF_HAND, ItemStack.EMPTY);
-
-                // Optionally, destroy the key after use
-                keyStack.shrink(1);
-
-                return true;
-            }
-        }
-
-        return false;
     }
 }
