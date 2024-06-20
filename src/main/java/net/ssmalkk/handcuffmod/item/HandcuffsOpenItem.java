@@ -2,17 +2,22 @@ package net.ssmalkk.handcuffmod.item;
 
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.monster.ZombieEntity;
+import net.minecraft.entity.monster.SkeletonEntity;
+import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.World;
 import net.ssmalkk.handcuffmod.registry.ItemRegistry;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 import software.bernie.geckolib3.util.GeckoLibUtil;
+
+import java.util.List;
 
 public class HandcuffsOpenItem extends Item implements IAnimatable {
     private final AnimationFactory factory = GeckoLibUtil.createFactory(this);
@@ -41,12 +46,18 @@ public class HandcuffsOpenItem extends Item implements IAnimatable {
         ItemStack handcuffs = new ItemStack(ItemRegistry.HANDCUFFS.get());
 
         // Atualiza os NBTs com informações da chave e quem trancou quem
-        NBTUtil.setLocker(handcuffs, player.getDisplayName().getString());
-        NBTUtil.setLockedEntity(handcuffs, player.getDisplayName().getString());
+        NBTUtil.setLocker(handcuffs, player.getUniqueID().toString());
+        NBTUtil.setLockedEntity(handcuffs, player.getUniqueID().toString());
         NBTUtil.setLockKey(handcuffs, generateLockKey());
 
-        // Coloca as algemas na mão principal do jogador
-        player.setHeldItem(Hand.MAIN_HAND, handcuffs);
+        // Remove qualquer item atualmente na offhand e dropa no chão
+        ItemStack offhandItem = player.getHeldItem(Hand.OFF_HAND);
+        if (!offhandItem.isEmpty()) {
+            player.dropItem(offhandItem, false);
+        }
+
+        // Coloca as algemas na offhand do jogador
+        player.setHeldItem(Hand.OFF_HAND, handcuffs);
 
         // Cria uma chave com os mesmos NBTs das algemas
         ItemStack key = new ItemStack(ItemRegistry.KEY.get());
@@ -89,34 +100,51 @@ public class HandcuffsOpenItem extends Item implements IAnimatable {
         return ActionResult.resultPass(stack);
     }
 
-    // Função fictícia para encontrar uma entidade alvo (necessário implementar a lógica real)
+    // Função para encontrar uma entidade alvo
     private LivingEntity findTargetEntity(PlayerEntity player) {
-        // Implementar lógica de encontrar a entidade alvo
+        World world = player.world;
+        AxisAlignedBB aabb = new AxisAlignedBB(player.getPosX() - 5, player.getPosY() - 5, player.getPosZ() - 5, player.getPosX() + 5, player.getPosY() + 5, player.getPosZ() + 5);
+        List<LivingEntity> entities = world.getEntitiesWithinAABB(LivingEntity.class, aabb);
+
+        for (LivingEntity entity : entities) {
+            if (entity instanceof ZombieEntity || entity instanceof SkeletonEntity || entity instanceof VillagerEntity || (entity instanceof PlayerEntity && entity != player)) {
+                return entity;
+            }
+        }
         return null;
     }
 
     // Função para trancar uma entidade e manter uma cópia com o jogador (main true)
     private void lockEntityWithMain(PlayerEntity player, LivingEntity target, ItemStack stack) {
-        ItemStack handcuff = new ItemStack(ItemRegistry.HANDCUFFS.get());
+        ItemStack handcuff = new ItemStack(ItemRegistry.HANDCUFF.get());
         String lockKey = generateLockKey();
 
         // Atualiza os NBTs com informações da chave e quem trancou quem
-        NBTUtil.setLocker(handcuff, player.getDisplayName().getString());
-        NBTUtil.setLockedEntity(handcuff, target.getDisplayName().getString());
+        NBTUtil.setLocker(handcuff, player.getUniqueID().toString());
+        NBTUtil.setLockedEntity(handcuff, target.getUniqueID().toString());
         NBTUtil.setLockKey(handcuff, lockKey);
-        NBTUtil.setMain(handcuff, true);
 
-        // Entrega as algemas ao alvo
-        target.entityDropItem(handcuff);
+        // Remove qualquer item atualmente na offhand do alvo e dropa no chão
+        ItemStack offhandItem = target.getHeldItem(Hand.OFF_HAND);
+        if (!offhandItem.isEmpty()) {
+            target.entityDropItem(offhandItem);
+        }
+
+        // Coloca as algemas na offhand do alvo
+        target.setHeldItem(Hand.OFF_HAND, handcuff);
 
         // Cria uma cópia das algemas para o jogador
         ItemStack handcuffCopy = handcuff.copy();
         NBTUtil.setMain(handcuffCopy, true);
 
-        // Adiciona a cópia das algemas ao inventário do jogador
-        if (!player.inventory.addItemStackToInventory(handcuffCopy)) {
-            player.dropItem(handcuffCopy, false);
+        // Remove qualquer item atualmente na offhand do jogador e dropa no chão
+        ItemStack playerOffhandItem = player.getHeldItem(Hand.OFF_HAND);
+        if (!playerOffhandItem.isEmpty()) {
+            player.dropItem(playerOffhandItem, false);
         }
+
+        // Coloca a cópia das algemas na offhand do jogador
+        player.setHeldItem(Hand.OFF_HAND, handcuffCopy);
 
         // Entrega a chave ao jogador
         ItemStack key = new ItemStack(ItemRegistry.KEY.get());
@@ -135,21 +163,18 @@ public class HandcuffsOpenItem extends Item implements IAnimatable {
         String lockKey = generateLockKey();
 
         // Atualiza os NBTs com informações da chave e quem trancou quem
-        NBTUtil.setLocker(handcuffs, player.getDisplayName().getString());
-        NBTUtil.setLockedEntity(handcuffs, target.getDisplayName().getString());
+        NBTUtil.setLocker(handcuffs, player.getUniqueID().toString());
+        NBTUtil.setLockedEntity(handcuffs, target.getUniqueID().toString());
         NBTUtil.setLockKey(handcuffs, lockKey);
 
-        // Entrega as algemas ao alvo
-        target.entityDropItem(handcuffs);
-
-        // Cria uma cópia das algemas para o jogador
-        ItemStack handcuffCopy = handcuffs.copy();
-        NBTUtil.setMain(handcuffCopy, true);
-
-        // Adiciona a cópia das algemas ao inventário do jogador
-        if (!player.inventory.addItemStackToInventory(handcuffCopy)) {
-            player.dropItem(handcuffCopy, false);
+        // Remove qualquer item atualmente na offhand do alvo e dropa no chão
+        ItemStack offhandItem = target.getHeldItem(Hand.OFF_HAND);
+        if (!offhandItem.isEmpty()) {
+            target.entityDropItem(offhandItem);
         }
+
+        // Coloca as algemas na offhand do alvo
+        target.setHeldItem(Hand.OFF_HAND, handcuffs);
 
         // Entrega a chave ao jogador
         ItemStack key = new ItemStack(ItemRegistry.KEY.get());
