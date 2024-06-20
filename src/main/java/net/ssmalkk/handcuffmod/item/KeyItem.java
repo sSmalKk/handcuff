@@ -6,11 +6,11 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.World;
 import net.ssmalkk.handcuffmod.registry.ItemRegistry;
+
+import java.util.List;
 
 public class KeyItem extends Item {
     public KeyItem(Properties properties) {
@@ -22,55 +22,57 @@ public class KeyItem extends Item {
         ItemStack keyStack = player.getHeldItem(hand);
 
         if (!world.isRemote) {
-            // Verificar a entidade que o jogador está clicando
-            RayTraceResult rayTraceResult = player.pick(5.0D, 0.0F, false);
-            if (rayTraceResult.getType() == RayTraceResult.Type.ENTITY) {
-                EntityRayTraceResult entityRayTraceResult = (EntityRayTraceResult) rayTraceResult;
-                if (entityRayTraceResult.getEntity() instanceof LivingEntity) {
-                    LivingEntity target = (LivingEntity) entityRayTraceResult.getEntity();
-                    return tryUnlock(player, target, keyStack);
+            // Find the target entity within range
+            LivingEntity target = findTargetEntity(player);
+            if (target != null) {
+                // Try to unlock the target entity
+                if (unlockEntity(player, target, keyStack)) {
+                    return ActionResult.resultSuccess(keyStack);
                 }
-            } else if (rayTraceResult.getType() == RayTraceResult.Type.BLOCK) {
-                BlockRayTraceResult blockRayTraceResult = (BlockRayTraceResult) rayTraceResult;
-                // Implementar lógica de desbloqueio com blocos, se necessário
+            } else {
+                // Try to unlock the player themselves
+                if (unlockEntity(player, player, keyStack)) {
+                    return ActionResult.resultSuccess(keyStack);
+                }
             }
-
-            // Verificar apenas a offhand do jogador
-            return tryUnlock(player, null, keyStack);
         }
 
         return ActionResult.resultPass(keyStack);
     }
 
-    private ActionResult<ItemStack> tryUnlock(PlayerEntity player, LivingEntity target, ItemStack keyStack) {
-        ItemStack playerOffhand = player.getHeldItem(Hand.OFF_HAND);
-        ItemStack targetOffhand = target != null ? target.getHeldItem(Hand.OFF_HAND) : ItemStack.EMPTY;
+    // Function to find a target entity within range
+    private LivingEntity findTargetEntity(PlayerEntity player) {
+        World world = player.world;
+        AxisAlignedBB aabb = new AxisAlignedBB(player.getPosX() - 5, player.getPosY() - 5, player.getPosZ() - 5, player.getPosX() + 5, player.getPosY() + 5, player.getPosZ() + 5);
+        List<LivingEntity> entities = world.getEntitiesWithinAABB(LivingEntity.class, aabb);
 
-        // Verificar se a chave corresponde à algema
-        if (playerOffhand.getItem() == ItemRegistry.HANDCUFFS.get() && NBTUtil.getLockKey(playerOffhand).equals(NBTUtil.getLockKey(keyStack))) {
-            unlock(player, Hand.OFF_HAND, keyStack);
-            return ActionResult.resultSuccess(keyStack);
+        for (LivingEntity entity : entities) {
+            if ((entity instanceof PlayerEntity && entity != player) || entity instanceof VillagerEntity || entity instanceof ZombieEntity || entity instanceof SkeletonEntity) {
+                return entity;
+            }
         }
-
-        if (!targetOffhand.isEmpty() && targetOffhand.getItem() == ItemRegistry.HANDCUFFS.get() && NBTUtil.getLockKey(targetOffhand).equals(NBTUtil.getLockKey(keyStack))) {
-            unlock(target, Hand.OFF_HAND, keyStack);
-            return ActionResult.resultSuccess(keyStack);
-        }
-
-        return ActionResult.resultPass(keyStack);
+        return null;
     }
 
-    private void unlock(LivingEntity entity, Hand hand, ItemStack keyStack) {
-        ItemStack handcuffs = entity.getHeldItem(hand);
-        ItemStack openHandcuffs = new ItemStack(ItemRegistry.HANDCUFFSOPEN.get());
+    // Function to unlock an entity
+    private boolean unlockEntity(PlayerEntity player, LivingEntity target, ItemStack keyStack) {
+        ItemStack offhandItem = target.getHeldItem(Hand.OFF_HAND);
 
-        // Copiar os NBTs necessários para as algemas abertas
-        NBTUtil.setLockKey(openHandcuffs, NBTUtil.getLockKey(handcuffs));
+        if (offhandItem.getItem() == ItemRegistry.HANDCUFF.get() || offhandItem.getItem() == ItemRegistry.HANDCUFFS.get()) {
+            String lockKey = NBTUtil.getLockKey(offhandItem);
+            String keyLockKey = NBTUtil.getLockKey(keyStack);
 
-        // Substituir as algemas pela versão aberta
-        entity.setHeldItem(hand, openHandcuffs);
+            if (lockKey.equals(keyLockKey)) {
+                // Remove the handcuffs from the offhand slot
+                target.setHeldItem(Hand.OFF_HAND, ItemStack.EMPTY);
 
-        // Remover a chave do inventário
-        keyStack.shrink(1);
+                // Optionally, destroy the key after use
+                keyStack.shrink(1);
+
+                return true;
+            }
+        }
+
+        return false;
     }
 }
