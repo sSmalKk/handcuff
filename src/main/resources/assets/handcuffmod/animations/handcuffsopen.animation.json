@@ -1,0 +1,41 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"animation.handcuffsopen.close": {
+			"loop": "hold_on_last_frame",
+			"animation_length": 0.25,
+			"bones": {
+				"bone3": {
+					"rotation": {
+						"0.0": [0, 0, 20],
+						"0.25": [0, 0, 175]
+					}
+				},
+				"bone4": {
+					"rotation": {
+						"0.0": [0, 0, -32.5],
+						"0.25": [0, 0, -180]
+					}
+				}
+			}
+		},
+		"animation.handcuffsopen.open": {
+			"loop": "hold_on_last_frame",
+			"animation_length": 0.25,
+			"bones": {
+				"bone3": {
+					"rotation": {
+						"0.0": [0, 0, 175],
+						"0.25": [0, 0, 20]
+					}
+				},
+				"bone4": {
+					"rotation": {
+						"0.0": [0, 0, -180],
+						"0.25": [0, 0, -32.5]
+					}
+				}
+			}
+		}
+	}
+}

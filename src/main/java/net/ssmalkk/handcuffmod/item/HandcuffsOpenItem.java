@@ -6,10 +6,10 @@ import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 import software.bernie.geckolib3.util.GeckoLibUtil;
 
-public class HandcuffItem extends Item implements IAnimatable {
+public class HandcuffsOpenItem extends Item implements IAnimatable {
     private final AnimationFactory factory = GeckoLibUtil.createFactory(this);
 
-    public HandcuffItem(Properties properties) {
+    public HandcuffsOpenItem(Properties properties) {
         super(properties.maxStackSize(1)); // Limitar a 1 por pilha
     }
 

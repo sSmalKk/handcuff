@@ -1,4 +1,4 @@
-package software.bernie.example.client;
+package net.ssmalkk.handcuffmod.client;
 
 public class DefaultBipedBoneIdents {
 

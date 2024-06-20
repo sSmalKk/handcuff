@@ -8,16 +8,16 @@ import software.bernie.geckolib3.model.AnimatedGeoModel;
 public class HandcuffModel extends AnimatedGeoModel<HandcuffItem> {
 	@Override
 	public ResourceLocation getModelLocation(HandcuffItem object) {
-		return EntityResources.HANDCUFFS_MODEL;
+		return EntityResources.HANDCUFF_MODEL;
 	}
 
 	@Override
 	public ResourceLocation getTextureLocation(HandcuffItem object) {
-		return EntityResources.HANDCUFFS_TEXTURE;
+		return EntityResources.HANDCUFF_TEXTURE;
 	}
 
 	@Override
 	public ResourceLocation getAnimationFileLocation(HandcuffItem animatable) {
-		return EntityResources.HANDCUFFS_ANIMATION;
+		return EntityResources.HANDCUFF_ANIMATION;
 	}
 }
