@@ -4,11 +4,12 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.common.MinecraftForge;
 import net.ssmalkk.handcuffmod.event.HandcuffEventHandler;
 import net.ssmalkk.handcuffmod.registry.ItemRegistry;
 import software.bernie.geckolib3.GeckoLib;
@@ -17,20 +18,19 @@ import org.apache.logging.log4j.Logger;
 
 @Mod(HandcuffMod.MOD_ID)
 public class HandcuffMod {
-	public static final Logger LOGGER = LogManager.getLogger();
-	public static ItemGroup handcuffModItemGroup;
-	public static final String MOD_ID = "handcuffmod";
+    public static final Logger LOGGER = LogManager.getLogger();
+    public static ItemGroup handcuffModItemGroup;
+    public static final String MOD_ID = "handcuffmod";
 
-	private static final boolean isDevelopmentEnvironment = true; // Change as needed
-	private static final boolean DISABLE_IN_DEV = false; // Change as needed
-	private static final String DISABLE_EXAMPLES_PROPERTY_KEY = "handcuffmod.disable_examples"; // Change as needed
+    private static final boolean isDevelopmentEnvironment = true; // Change as needed
+    private static final boolean DISABLE_IN_DEV = false; // Change as needed
+    private static final String DISABLE_EXAMPLES_PROPERTY_KEY = "handcuffmod.disable_examples"; // Change as needed
 
-	public HandcuffMod() {
+    public HandcuffMod() {
         GeckoLib.initialize(); // Initializes GeckoLib
 
-        IEventBus modEventBus = null;
+        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         if (shouldRegister()) {
-            modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
             ItemRegistry.ITEMS.register(modEventBus); // Registers mod items
 
             modEventBus.addListener(this::setup);
@@ -44,22 +44,20 @@ public class HandcuffMod {
                 }
             };
         }
+
+        // Register the event handler
         MinecraftForge.EVENT_BUS.register(new HandcuffEventHandler());
 
-        // Register ClientListener to the client mod event bus
+        // Register ClientListener to the client mod event bus if needed
         modEventBus.register(ClientListener.class);
-
-
-        // Registers event handler
-        MinecraftForge.EVENT_BUS.register(new HandcuffEventHandler());
     }
 
-	private void setup(final FMLCommonSetupEvent event) {
-		// Mod setup
-	}
+    private void setup(final FMLCommonSetupEvent event) {
+        // Mod setup
+    }
 
-	// Method to determine if extra resources should be registered
-	static boolean shouldRegister() {
-		return isDevelopmentEnvironment && !DISABLE_IN_DEV && !Boolean.getBoolean(DISABLE_EXAMPLES_PROPERTY_KEY);
-	}
+    // Method to determine if extra resources should be registered
+    static boolean shouldRegister() {
+        return isDevelopmentEnvironment && !DISABLE_IN_DEV && !Boolean.getBoolean(DISABLE_EXAMPLES_PROPERTY_KEY);
+    }
 }
