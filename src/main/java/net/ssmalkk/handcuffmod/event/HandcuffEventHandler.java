@@ -5,6 +5,8 @@ import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResultType;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.ssmalkk.handcuffmod.HandcuffMod;
@@ -27,20 +29,31 @@ public class HandcuffEventHandler {
             if (event instanceof PlayerInteractEvent.RightClickBlock ||
                     event instanceof PlayerInteractEvent.EntityInteract ||
                     event instanceof PlayerInteractEvent.RightClickItem ||
-                    event instanceof PlayerInteractEvent.RightClickEmpty) {
+                    event instanceof PlayerInteractEvent.RightClickEmpty ||
+                    event instanceof PlayerInteractEvent.LeftClickBlock ||
+                    event instanceof PlayerInteractEvent.LeftClickEmpty ||
+                    event instanceof PlayerInteractEvent.EntityInteractSpecific) {
 
                 event.setCancellationResult(ActionResultType.FAIL);
                 event.setCanceled(true);
             }
 
             // Bloqueia a interação com itens na mão se estiver algemado por trás
-            if (isBehind) {
-                if (event instanceof PlayerInteractEvent.RightClickItem) {
-                    ItemStack itemStack = event.getItemStack();
-                    event.setCancellationResult(ActionResultType.FAIL);
-                    event.setCanceled(true);
-                }
+            if (isBehind && event instanceof PlayerInteractEvent.RightClickItem) {
+                event.setCancellationResult(ActionResultType.FAIL);
+                event.setCanceled(true);
             }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onItemBreak(PlayerDestroyItemEvent event) {
+        PlayerEntity player = event.getPlayer();
+        ItemStack chestItem = player.getItemStackFromSlot(EquipmentSlotType.CHEST);
+
+        // Verifica se o item no slot do peito é uma instância de HandcuffsItem (no plural)
+        if (chestItem.getItem() instanceof HandcuffsItem) {
+            event.setCanceled(true); // Cancela o evento de quebra do item
         }
     }
 }
