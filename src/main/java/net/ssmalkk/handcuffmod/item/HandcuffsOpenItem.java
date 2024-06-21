@@ -62,6 +62,8 @@ public class HandcuffsOpenItem extends Item implements IAnimatable {
         // Cria uma chave com os mesmos NBTs das algemas
         ItemStack key = new ItemStack(ItemRegistry.KEY.get());
         NBTUtil.setLockKey(key, NBTUtil.getLockKey(handcuffs));
+        NBTUtil.setLocker(key, player.getUniqueID().toString()); // Define o jogador como o trancador
+        NBTUtil.setLockedEntity(key, player.getUniqueID().toString()); // Define o próprio jogador como a entidade trancada
 
         // Tenta adicionar a chave no inventário do jogador
         if (!player.inventory.addItemStackToInventory(key)) {
@@ -72,6 +74,7 @@ public class HandcuffsOpenItem extends Item implements IAnimatable {
         // Remove as algemas abertas
         stack.shrink(1);
     }
+
 
     // Função para gerar uma chave única
     private String generateLockKey() {
@@ -87,18 +90,21 @@ public class HandcuffsOpenItem extends Item implements IAnimatable {
             LivingEntity target = findTargetEntity(player);
             if (target != null) {
                 if (player.isSneaking()) {
+                    // Se estiver mirando e pressionando shift, tranca o jogador com a entidade
                     lockEntityWithMain(player, target, stack);
                 } else {
+                    // Se estiver mirando mas não pressionando shift, tranca o jogador e a entidade juntos
                     lockEntityTogether(player, target, stack);
                 }
             } else {
-                // Se não estiver mirando em uma entidade, tranca o próprio jogador
+                // Se não estiver mirando em uma entidade, trata como um clique no ar normal
                 useItemInAir(player, stack);
             }
         }
 
         return ActionResult.resultPass(stack);
     }
+
 
     // Função para encontrar uma entidade alvo
     private LivingEntity findTargetEntity(PlayerEntity player) {
@@ -149,6 +155,10 @@ public class HandcuffsOpenItem extends Item implements IAnimatable {
         // Entrega a chave ao jogador
         ItemStack key = new ItemStack(ItemRegistry.KEY.get());
         NBTUtil.setLockKey(key, lockKey);
+        NBTUtil.setLocker(key, player.getUniqueID().toString()); // Define o jogador como o trancador
+        NBTUtil.setLockedEntity(key, target.getUniqueID().toString()); // Define o alvo como a entidade trancada
+
+        // Adiciona a chave ao inventário do jogador ou dropa no chão se estiver cheio
         if (!player.inventory.addItemStackToInventory(key)) {
             player.dropItem(key, false);
         }
@@ -157,6 +167,8 @@ public class HandcuffsOpenItem extends Item implements IAnimatable {
         stack.shrink(1);
     }
 
+
+    // Função para trancar uma entidade sozinha
     // Função para trancar uma entidade sozinha
     public void lockEntityTogether(PlayerEntity player, LivingEntity target, ItemStack stack) {
         ItemStack handcuffs = new ItemStack(ItemRegistry.HANDCUFFS.get());
@@ -179,6 +191,10 @@ public class HandcuffsOpenItem extends Item implements IAnimatable {
         // Entrega a chave ao jogador
         ItemStack key = new ItemStack(ItemRegistry.KEY.get());
         NBTUtil.setLockKey(key, lockKey);
+        NBTUtil.setLocker(key, player.getUniqueID().toString()); // Define o jogador como o trancador
+        NBTUtil.setLockedEntity(key, target.getUniqueID().toString()); // Define o alvo como a entidade trancada
+
+        // Adiciona a chave ao inventário do jogador ou dropa no chão se estiver cheio
         if (!player.inventory.addItemStackToInventory(key)) {
             player.dropItem(key, false);
         }
@@ -186,4 +202,5 @@ public class HandcuffsOpenItem extends Item implements IAnimatable {
         // Remove as algemas abertas
         stack.shrink(1);
     }
+
 }
