@@ -10,6 +10,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.World;
 import net.ssmalkk.handcuffmod.registry.ItemRegistry;
+import net.ssmalkk.handcuffmod.util.NBTUtil;
 
 import java.util.List;
 
