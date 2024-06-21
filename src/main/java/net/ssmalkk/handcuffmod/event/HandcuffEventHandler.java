@@ -11,7 +11,7 @@ import net.ssmalkk.handcuffmod.HandcuffMod;
 import net.ssmalkk.handcuffmod.item.HandcuffsItem;
 import net.ssmalkk.handcuffmod.util.NBTUtil;
 
-@Mod.EventBusSubscriber(modid = HandcuffMod.MOD_ID)
+@Mod.EventBusSubscriber(modid = HandcuffMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class HandcuffEventHandler {
 
     @SubscribeEvent
