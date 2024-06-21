@@ -3,45 +3,7 @@
 	"animations": {
 		"close": {
 			"loop": "hold_on_last_frame",
-			"animation_length": 0.0833,
-			"bones": {
-				"bone3": {
-					"rotation": {
-						"0.0": {
-							"vector": [0, 0, -207.5]
-						},
-						"0.0833": {
-							"vector": [0, 0, 0]
-						}
-					},
-					"position": {
-						"0.0": {
-							"vector": [-1, 0, 0]
-						},
-						"0.0833": {
-							"vector": [0, 0, 0]
-						}
-					}
-				},
-				"bone4": {
-					"rotation": {
-						"0.0": {
-							"vector": [0, 0, 197.5]
-						},
-						"0.0833": {
-							"vector": [0, 0, 2.5]
-						}
-					},
-					"position": {
-						"0.0": {
-							"vector": [1, 0, 0]
-						},
-						"0.0833": {
-							"vector": [0, 0, 0]
-						}
-					}
-				}
-			}
+			"animation_length": 0.0833
 		},
 		"idle": {
 			"loop": true,

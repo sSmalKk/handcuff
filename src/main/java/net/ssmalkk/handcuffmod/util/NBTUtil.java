@@ -1,4 +1,4 @@
-package net.ssmalkk.handcuffmod.item;
+package net.ssmalkk.handcuffmod.util;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -7,6 +7,8 @@ public class NBTUtil {
     private static final String LOCKER_KEY = "Locker";
     private static final String LOCKED_ENTITY_KEY = "LockedEntity";
     private static final String LOCK_KEY = "LockKey";
+    private static final String IS_MAIN_KEY = "IsMain";
+    private static final String LOCKED_FROM_BEHIND_KEY = "LockedFromBehind";
 
     public static void setLocker(ItemStack stack, String locker) {
         CompoundNBT tag = stack.getOrCreateTag();
@@ -40,6 +42,21 @@ public class NBTUtil {
 
     public static void setMain(ItemStack stack, boolean isMain) {
         CompoundNBT tag = stack.getOrCreateTag();
-        tag.putBoolean("IsMain", isMain);
+        tag.putBoolean(IS_MAIN_KEY, isMain);
+    }
+
+    public static boolean isMain(ItemStack stack) {
+        CompoundNBT tag = stack.getTag();
+        return tag != null && tag.getBoolean(IS_MAIN_KEY);
+    }
+
+    public static void setLockedFromBehind(ItemStack stack, boolean isBehind) {
+        CompoundNBT tag = stack.getOrCreateTag();
+        tag.putBoolean(LOCKED_FROM_BEHIND_KEY, isBehind);
+    }
+
+    public static boolean isLockedFromBehind(ItemStack stack) {
+        CompoundNBT tag = stack.getTag();
+        return tag != null && tag.getBoolean(LOCKED_FROM_BEHIND_KEY);
     }
 }

@@ -12,12 +12,14 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.ssmalkk.handcuffmod.registry.ItemRegistry;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 import software.bernie.geckolib3.util.GeckoLibUtil;
+import net.ssmalkk.handcuffmod.util.NBTUtil;
 
 import java.util.List;
 
@@ -45,6 +47,11 @@ public class HandcuffsOpenItem extends Item implements IAnimatable {
 
     // Função para trancar o próprio jogador
     private void lockSelf(PlayerEntity player, ItemStack stack) {
+        // Verifica se o jogador já tem algemas na mão secundária
+        if (hasHandcuffsInOffhand(player)) {
+            return; // Cancela a operação se já houver algemas na mão secundária
+        }
+
         ItemStack handcuffs = new ItemStack(ItemRegistry.HANDCUFFS.get());
         handcuffs.addEnchantment(Enchantments.BINDING_CURSE, 1); // Adiciona o encantamento Curse of Binding
 
@@ -78,7 +85,6 @@ public class HandcuffsOpenItem extends Item implements IAnimatable {
         stack.shrink(1);
     }
 
-
     // Função para gerar uma chave única
     private String generateLockKey() {
         return java.util.UUID.randomUUID().toString();
@@ -108,7 +114,6 @@ public class HandcuffsOpenItem extends Item implements IAnimatable {
         return ActionResult.resultPass(stack);
     }
 
-
     // Função para encontrar uma entidade alvo
     private LivingEntity findTargetEntity(PlayerEntity player) {
         World world = player.world;
@@ -123,8 +128,21 @@ public class HandcuffsOpenItem extends Item implements IAnimatable {
         return null;
     }
 
+    // Função para verificar se o jogador está atrás do alvo
+    private boolean isPlayerBehindEntity(PlayerEntity player, LivingEntity target) {
+        Vector3d playerViewVec = player.getLookVec().normalize();
+        Vector3d targetVec = target.getPositionVec().subtract(player.getPositionVec()).normalize();
+        double dotProduct = playerViewVec.dotProduct(targetVec);
+        return dotProduct < 0; // Se o produto escalar for negativo, o jogador está atrás da entidade
+    }
+
     // Função para trancar uma entidade e manter uma cópia com o jogador (main true)
     private void lockEntityWithMain(PlayerEntity player, LivingEntity target, ItemStack stack) {
+        // Verifica se o jogador já tem algemas na mão secundária
+        if (hasHandcuffsInOffhand(player)) {
+            return; // Cancela a operação se já houver algemas na mão secundária
+        }
+
         ItemStack handcuff = new ItemStack(ItemRegistry.HANDCUFF.get());
         handcuff.addEnchantment(Enchantments.BINDING_CURSE, 1); // Adiciona o encantamento Curse of Binding
         String lockKey = generateLockKey();
@@ -133,6 +151,10 @@ public class HandcuffsOpenItem extends Item implements IAnimatable {
         NBTUtil.setLocker(handcuff, player.getUniqueID().toString());
         NBTUtil.setLockedEntity(handcuff, target.getUniqueID().toString());
         NBTUtil.setLockKey(handcuff, lockKey);
+
+        // Define se está preso pela frente ou por trás
+        boolean isBehind = isPlayerBehindEntity(player, target);
+        NBTUtil.setLockedFromBehind(handcuff, isBehind);
 
         // Remove qualquer item atualmente na armorslot do alvo e dropa no chão
         ItemStack armorItem = target.getItemStackFromSlot(EquipmentSlotType.CHEST);
@@ -171,9 +193,13 @@ public class HandcuffsOpenItem extends Item implements IAnimatable {
         stack.shrink(1);
     }
 
-
     // Função para trancar uma entidade sozinha
     public void lockEntityTogether(PlayerEntity player, LivingEntity target, ItemStack stack) {
+        // Verifica se o jogador já tem algemas na mão secundária
+        if (hasHandcuffsInOffhand(player)) {
+            return; // Cancela a operação se já houver algemas na mão secundária
+        }
+
         ItemStack handcuffs = new ItemStack(ItemRegistry.HANDCUFFS.get());
         handcuffs.addEnchantment(Enchantments.BINDING_CURSE, 1); // Adiciona o encantamento Curse of Binding
         String lockKey = generateLockKey();
@@ -182,6 +208,10 @@ public class HandcuffsOpenItem extends Item implements IAnimatable {
         NBTUtil.setLocker(handcuffs, player.getUniqueID().toString());
         NBTUtil.setLockedEntity(handcuffs, target.getUniqueID().toString());
         NBTUtil.setLockKey(handcuffs, lockKey);
+
+        // Define se está preso pela frente ou por trás
+        boolean isBehind = isPlayerBehindEntity(player, target);
+        NBTUtil.setLockedFromBehind(handcuffs, isBehind);
 
         // Remove qualquer item atualmente na armorslot do alvo e dropa no chão
         ItemStack armorItem = target.getItemStackFromSlot(EquipmentSlotType.CHEST);
@@ -207,4 +237,9 @@ public class HandcuffsOpenItem extends Item implements IAnimatable {
         stack.shrink(1);
     }
 
+    // Função para verificar se o jogador tem algemas na mão secundária
+    private boolean hasHandcuffsInOffhand(PlayerEntity player) {
+        ItemStack offhandItem = player.getHeldItemOffhand();
+        return offhandItem.getItem() == ItemRegistry.HANDCUFF.get() || offhandItem.getItem() == ItemRegistry.HANDCUFFS.get();
+    }
 }
