@@ -4,12 +4,11 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.common.MinecraftForge;
 import net.ssmalkk.handcuffmod.event.HandcuffEventHandler;
 import net.ssmalkk.handcuffmod.registry.ItemRegistry;
 import software.bernie.geckolib3.GeckoLib;
@@ -48,7 +47,7 @@ public class HandcuffMod {
         // Register the event handler
         MinecraftForge.EVENT_BUS.register(new HandcuffEventHandler());
 
-        // Register ClientListener to the client mod event bus if needed
+        // Register ClientListener to the client mod event bus
         modEventBus.register(ClientListener.class);
     }
 
