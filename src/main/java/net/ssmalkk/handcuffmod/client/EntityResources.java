@@ -16,4 +16,3 @@ public class EntityResources {
 	public static final ResourceLocation HANDCUFF_TEXTURE = new ResourceLocation(HandcuffMod.MOD_ID, "textures/item/handcuffs.png");
 	public static final ResourceLocation HANDCUFF_ANIMATION = new ResourceLocation(HandcuffMod.MOD_ID, "animations/handcuff.animation.json");
 }
-

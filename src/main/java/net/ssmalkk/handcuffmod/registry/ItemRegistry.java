@@ -1,5 +1,7 @@
 package net.ssmalkk.handcuffmod.registry;
 
+import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.ArmorMaterial;
 import net.minecraft.item.Item;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
@@ -16,14 +18,15 @@ import net.ssmalkk.handcuffmod.item.KeyItem;
 public class ItemRegistry {
 	public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, HandcuffMod.MOD_ID);
 
+	// Registering custom items specific to another mod
 	public static final RegistryObject<HandcuffsItem> HANDCUFFS = ITEMS.register("handcuffs",
-			() -> new HandcuffsItem(new Item.Properties().group(HandcuffMod.handcuffModItemGroup).setISTER(() -> HandcuffsRender::new)));
+			() -> new HandcuffsItem(ArmorMaterial.DIAMOND, EquipmentSlotType.CHEST, new Item.Properties()));
 
 	public static final RegistryObject<HandcuffsOpenItem> HANDCUFFSOPEN = ITEMS.register("handcuffsopen",
 			() -> new HandcuffsOpenItem(new Item.Properties().group(HandcuffMod.handcuffModItemGroup).setISTER(() -> HandcuffsOpenRender::new)));
 
 	public static final RegistryObject<HandcuffItem> HANDCUFF = ITEMS.register("handcuff",
-			() -> new HandcuffItem(new Item.Properties().group(HandcuffMod.handcuffModItemGroup).setISTER(() -> HandcuffRender::new)));
+			() -> new HandcuffItem(ArmorMaterial.DIAMOND, EquipmentSlotType.CHEST, new Item.Properties()));
 
 	public static final RegistryObject<Item> KEY = ITEMS.register("key",
 			() -> new KeyItem(new Item.Properties().group(HandcuffMod.handcuffModItemGroup).maxStackSize(1)));

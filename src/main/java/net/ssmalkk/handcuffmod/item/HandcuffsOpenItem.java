@@ -1,5 +1,6 @@
 package net.ssmalkk.handcuffmod.item;
 
+import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.monster.ZombieEntity;
@@ -45,6 +46,7 @@ public class HandcuffsOpenItem extends Item implements IAnimatable {
     // Função para trancar o próprio jogador
     private void lockSelf(PlayerEntity player, ItemStack stack) {
         ItemStack handcuffs = new ItemStack(ItemRegistry.HANDCUFFS.get());
+        handcuffs.addEnchantment(Enchantments.BINDING_CURSE, 1); // Adiciona o encantamento Curse of Binding
 
         // Atualiza os NBTs com informações da chave e quem trancou quem
         NBTUtil.setLocker(handcuffs, player.getUniqueID().toString());
@@ -124,6 +126,7 @@ public class HandcuffsOpenItem extends Item implements IAnimatable {
     // Função para trancar uma entidade e manter uma cópia com o jogador (main true)
     private void lockEntityWithMain(PlayerEntity player, LivingEntity target, ItemStack stack) {
         ItemStack handcuff = new ItemStack(ItemRegistry.HANDCUFF.get());
+        handcuff.addEnchantment(Enchantments.BINDING_CURSE, 1); // Adiciona o encantamento Curse of Binding
         String lockKey = generateLockKey();
 
         // Atualiza os NBTs com informações da chave e quem trancou quem
@@ -151,7 +154,7 @@ public class HandcuffsOpenItem extends Item implements IAnimatable {
         }
 
         // Coloca a cópia das algemas na armorslot do jogador
-        player.getItemStackFromSlot(EquipmentSlotType.CHEST);
+        player.setItemStackToSlot(EquipmentSlotType.CHEST, handcuffCopy);
 
         // Entrega a chave ao jogador
         ItemStack key = new ItemStack(ItemRegistry.KEY.get());
@@ -170,9 +173,9 @@ public class HandcuffsOpenItem extends Item implements IAnimatable {
 
 
     // Função para trancar uma entidade sozinha
-    // Função para trancar uma entidade sozinha
     public void lockEntityTogether(PlayerEntity player, LivingEntity target, ItemStack stack) {
         ItemStack handcuffs = new ItemStack(ItemRegistry.HANDCUFFS.get());
+        handcuffs.addEnchantment(Enchantments.BINDING_CURSE, 1); // Adiciona o encantamento Curse of Binding
         String lockKey = generateLockKey();
 
         // Atualiza os NBTs com informações da chave e quem trancou quem
@@ -188,6 +191,7 @@ public class HandcuffsOpenItem extends Item implements IAnimatable {
 
         // Coloca as algemas na armorslot do alvo
         target.setItemStackToSlot(EquipmentSlotType.CHEST, handcuffs);
+
         // Entrega a chave ao jogador
         ItemStack key = new ItemStack(ItemRegistry.KEY.get());
         NBTUtil.setLockKey(key, lockKey);
