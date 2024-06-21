@@ -5,6 +5,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.monster.ZombieEntity;
 import net.minecraft.entity.monster.SkeletonEntity;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
+import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
@@ -50,14 +51,14 @@ public class HandcuffsOpenItem extends Item implements IAnimatable {
         NBTUtil.setLockedEntity(handcuffs, player.getUniqueID().toString());
         NBTUtil.setLockKey(handcuffs, generateLockKey());
 
-        // Remove qualquer item atualmente na offhand e dropa no chão
-        ItemStack offhandItem = player.getHeldItem(Hand.OFF_HAND);
-        if (!offhandItem.isEmpty()) {
-            player.dropItem(offhandItem, false);
+        // Remove qualquer item atualmente na armorslot e dropa no chão
+        ItemStack armorItem = player.getItemStackFromSlot(EquipmentSlotType.CHEST);
+        if (!armorItem.isEmpty()) {
+            player.dropItem(armorItem, false);
         }
 
-        // Coloca as algemas na offhand do jogador
-        player.setHeldItem(Hand.OFF_HAND, handcuffs);
+        // Coloca as algemas na armorslot do jogador
+        player.setItemStackToSlot(EquipmentSlotType.CHEST, handcuffs);
 
         // Cria uma chave com os mesmos NBTs das algemas
         ItemStack key = new ItemStack(ItemRegistry.KEY.get());
@@ -130,27 +131,27 @@ public class HandcuffsOpenItem extends Item implements IAnimatable {
         NBTUtil.setLockedEntity(handcuff, target.getUniqueID().toString());
         NBTUtil.setLockKey(handcuff, lockKey);
 
-        // Remove qualquer item atualmente na offhand do alvo e dropa no chão
-        ItemStack offhandItem = target.getHeldItem(Hand.OFF_HAND);
-        if (!offhandItem.isEmpty()) {
-            target.entityDropItem(offhandItem);
+        // Remove qualquer item atualmente na armorslot do alvo e dropa no chão
+        ItemStack armorItem = target.getItemStackFromSlot(EquipmentSlotType.CHEST);
+        if (!armorItem.isEmpty()) {
+            target.entityDropItem(armorItem);
         }
 
-        // Coloca as algemas na offhand do alvo
-        target.setHeldItem(Hand.OFF_HAND, handcuff);
+        // Coloca as algemas na armorslot do alvo
+        target.setItemStackToSlot(EquipmentSlotType.CHEST, handcuff);
 
         // Cria uma cópia das algemas para o jogador
         ItemStack handcuffCopy = handcuff.copy();
         NBTUtil.setMain(handcuffCopy, true);
 
-        // Remove qualquer item atualmente na offhand do jogador e dropa no chão
-        ItemStack playerOffhandItem = player.getHeldItem(Hand.OFF_HAND);
-        if (!playerOffhandItem.isEmpty()) {
-            player.dropItem(playerOffhandItem, false);
+        // Remove qualquer item atualmente na armorslot do jogador e dropa no chão
+        ItemStack playerArmorItem = player.getItemStackFromSlot(EquipmentSlotType.CHEST);
+        if (!playerArmorItem.isEmpty()) {
+            player.dropItem(playerArmorItem, false);
         }
 
-        // Coloca a cópia das algemas na offhand do jogador
-        player.setHeldItem(Hand.OFF_HAND, handcuffCopy);
+        // Coloca a cópia das algemas na armorslot do jogador
+        player.getItemStackFromSlot(EquipmentSlotType.CHEST);
 
         // Entrega a chave ao jogador
         ItemStack key = new ItemStack(ItemRegistry.KEY.get());
@@ -179,15 +180,14 @@ public class HandcuffsOpenItem extends Item implements IAnimatable {
         NBTUtil.setLockedEntity(handcuffs, target.getUniqueID().toString());
         NBTUtil.setLockKey(handcuffs, lockKey);
 
-        // Remove qualquer item atualmente na offhand do alvo e dropa no chão
-        ItemStack offhandItem = target.getHeldItem(Hand.OFF_HAND);
-        if (!offhandItem.isEmpty()) {
-            target.entityDropItem(offhandItem);
+        // Remove qualquer item atualmente na armorslot do alvo e dropa no chão
+        ItemStack armorItem = target.getItemStackFromSlot(EquipmentSlotType.CHEST);
+        if (!armorItem.isEmpty()) {
+            target.entityDropItem(armorItem);
         }
 
-        // Coloca as algemas na offhand do alvo
-        target.setHeldItem(Hand.OFF_HAND, handcuffs);
-
+        // Coloca as algemas na armorslot do alvo
+        target.setItemStackToSlot(EquipmentSlotType.CHEST, handcuffs);
         // Entrega a chave ao jogador
         ItemStack key = new ItemStack(ItemRegistry.KEY.get());
         NBTUtil.setLockKey(key, lockKey);

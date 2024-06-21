@@ -2,6 +2,7 @@ package net.ssmalkk.handcuffmod.item;
 
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
@@ -23,26 +24,26 @@ public class KeyItem extends Item {
 
         if (!world.isRemote) {
             LivingEntity target = findTargetEntity(player);
-            ItemStack playerOffhandItem = player.getHeldItem(Hand.OFF_HAND);
+            ItemStack playerChestItem = player.getItemStackFromSlot(EquipmentSlotType.CHEST);
 
             if (target != null) {
-                ItemStack targetOffhandItem = target.getHeldItem(Hand.OFF_HAND);
+                ItemStack targetChestItem = target.getItemStackFromSlot(EquipmentSlotType.CHEST);
 
-                if (playerOffhandItem.getItem() == ItemRegistry.HANDCUFF.get() &&
-                        targetOffhandItem.getItem() == ItemRegistry.HANDCUFF.get()) {
+                if (playerChestItem.getItem() == ItemRegistry.HANDCUFF.get() &&
+                        targetChestItem.getItem() == ItemRegistry.HANDCUFF.get()) {
                     // Caso 1: Dois players/entidades com handcuffs (singular)
-                    if (areKeysMatching(keyStack, playerOffhandItem, targetOffhandItem)) {
-                        unlockBothEntities(player, target, keyStack, playerOffhandItem, targetOffhandItem);
+                    if (areKeysMatching(keyStack, playerChestItem, targetChestItem)) {
+                        unlockBothEntities(player, target, keyStack, playerChestItem, targetChestItem);
                     }
-                } else if (targetOffhandItem.getItem() == ItemRegistry.HANDCUFFS.get() &&
-                        areKeysMatching(keyStack, playerOffhandItem, targetOffhandItem)) {
+                } else if (targetChestItem.getItem() == ItemRegistry.HANDCUFFS.get() &&
+                        areKeysMatching(keyStack, playerChestItem, targetChestItem)) {
                     // Caso 2: Entidade alvo tem handcuffs (plural)
-                    unlockSingleEntity(player, target, keyStack, targetOffhandItem);
+                    unlockSingleEntity(player, target, keyStack, targetChestItem);
                 }
-            } else if (playerOffhandItem.getItem() == ItemRegistry.HANDCUFFS.get() &&
-                    areKeysMatching(keyStack, playerOffhandItem, null)) {
+            } else if (playerChestItem.getItem() == ItemRegistry.HANDCUFFS.get() &&
+                    areKeysMatching(keyStack, playerChestItem, null)) {
                 // Caso 2: Player tem handcuffs (plural) e está clicando no ar
-                unlockSingleEntity(player, null, keyStack, playerOffhandItem);
+                unlockSingleEntity(player, null, keyStack, playerChestItem);
             }
         }
 
@@ -62,35 +63,35 @@ public class KeyItem extends Item {
         return null;
     }
 
-    private boolean areKeysMatching(ItemStack keyStack, ItemStack playerOffhandItem, ItemStack targetOffhandItem) {
+    private boolean areKeysMatching(ItemStack keyStack, ItemStack playerChestItem, ItemStack targetChestItem) {
         String key = NBTUtil.getLockKey(keyStack);
 
         if (key.isEmpty()) {
             return false;
         }
 
-        boolean playerMatches = playerOffhandItem != null && NBTUtil.getLockKey(playerOffhandItem).equals(key);
-        boolean targetMatches = targetOffhandItem != null && NBTUtil.getLockKey(targetOffhandItem).equals(key);
+        boolean playerMatches = playerChestItem != null && NBTUtil.getLockKey(playerChestItem).equals(key);
+        boolean targetMatches = targetChestItem != null && NBTUtil.getLockKey(targetChestItem).equals(key);
 
         return playerMatches || targetMatches;
     }
 
-    private void unlockBothEntities(PlayerEntity player, LivingEntity target, ItemStack keyStack, ItemStack playerOffhandItem, ItemStack targetOffhandItem) {
+    private void unlockBothEntities(PlayerEntity player, LivingEntity target, ItemStack keyStack, ItemStack playerChestItem, ItemStack targetChestItem) {
         // Remove handcuffs from player and target
-        player.setHeldItem(Hand.OFF_HAND, ItemStack.EMPTY);
-        target.setHeldItem(Hand.OFF_HAND, ItemStack.EMPTY);
+        player.setItemStackToSlot(EquipmentSlotType.CHEST, ItemStack.EMPTY);
+        target.setItemStackToSlot(EquipmentSlotType.CHEST, ItemStack.EMPTY);
 
         // Convert key to handcuffsopen
         keyStack.shrink(1);
         player.addItemStackToInventory(new ItemStack(ItemRegistry.HANDCUFFSOPEN.get()));
     }
 
-    private void unlockSingleEntity(PlayerEntity player, LivingEntity target, ItemStack keyStack, ItemStack targetOffhandItem) {
+    private void unlockSingleEntity(PlayerEntity player, LivingEntity target, ItemStack keyStack, ItemStack targetChestItem) {
         // Remove handcuffs from the target or player
         if (target != null) {
-            target.setHeldItem(Hand.OFF_HAND, ItemStack.EMPTY);
+            target.setItemStackToSlot(EquipmentSlotType.CHEST, ItemStack.EMPTY);
         } else {
-            player.setHeldItem(Hand.OFF_HAND, ItemStack.EMPTY);
+            player.setItemStackToSlot(EquipmentSlotType.CHEST, ItemStack.EMPTY);
         }
 
         // Convert key to handcuffsopen
