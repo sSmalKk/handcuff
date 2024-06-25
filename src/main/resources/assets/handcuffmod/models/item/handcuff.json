@@ -4,7 +4,9 @@
   "texture_size": [
     32,
     32
-  ],
+  ],"textures": {
+  "0": "path/to/handcuff_item.png"
+},
   "display": {
     "thirdperson_righthand": {
       "rotation": [

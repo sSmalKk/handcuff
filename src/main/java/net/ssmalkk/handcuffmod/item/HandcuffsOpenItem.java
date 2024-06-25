@@ -90,7 +90,7 @@ public class HandcuffsOpenItem extends Item implements IAnimatable {
                 if (player.isSneaking()) {
                     lockEntityWithMain(player, target, stack);
                 } else {
-                    lockEntityTogether(player, target, stack);
+                    lockEntityAlone(player, target, stack);
                 }
             } else {
                 useItemInAir(player, stack);
@@ -157,33 +157,33 @@ public class HandcuffsOpenItem extends Item implements IAnimatable {
         stack.shrink(1);
     }
 
-    private void lockEntityTogether(PlayerEntity player, LivingEntity target, ItemStack stack) {
+    private void lockEntityAlone(PlayerEntity player, LivingEntity target, ItemStack stack) {
         if (hasHandcuffsInOffhand(player)) return;
 
-        ItemStack handcuff = new ItemStack(ItemRegistry.HANDCUFF.get());
-        handcuff.addEnchantment(Enchantments.BINDING_CURSE, 1);
+        ItemStack handcuffs = new ItemStack(ItemRegistry.HANDCUFFS.get());
+        handcuffs.addEnchantment(Enchantments.BINDING_CURSE, 1);
         String lockKey = generateLockKey();
 
         UUID playerUUID = player.getUniqueID();
         UUID targetUUID = target.getUniqueID();
 
-        NBTUtil.setLocker(handcuff, playerUUID);
-        NBTUtil.setLockedEntity(handcuff, targetUUID);
-        NBTUtil.setLockKey(handcuff, lockKey);
-        NBTUtil.setLockedFromBehind(handcuff, isPlayerBehindEntity(player, target));
+        NBTUtil.setLocker(handcuffs, playerUUID);
+        NBTUtil.setLockedEntity(handcuffs, targetUUID);
+        NBTUtil.setLockKey(handcuffs, lockKey);
+        NBTUtil.setLockedFromBehind(handcuffs, isPlayerBehindEntity(player, target));
 
         ItemStack armorItem = target.getItemStackFromSlot(EquipmentSlotType.CHEST);
         if (!armorItem.isEmpty()) target.entityDropItem(armorItem);
 
-        target.setItemStackToSlot(EquipmentSlotType.CHEST, handcuff);
+        target.setItemStackToSlot(EquipmentSlotType.CHEST, handcuffs);
 
-        ItemStack handcuffCopy = handcuff.copy();
-        NBTUtil.setMain(handcuffCopy, true);
+        ItemStack handcuffsCopy = handcuffs.copy();
+        NBTUtil.setMain(handcuffsCopy, true);
 
         ItemStack playerArmorItem = player.getItemStackFromSlot(EquipmentSlotType.CHEST);
         if (!playerArmorItem.isEmpty()) player.dropItem(playerArmorItem, false);
 
-        player.setItemStackToSlot(EquipmentSlotType.CHEST, handcuffCopy);
+        player.setItemStackToSlot(EquipmentSlotType.CHEST, handcuffsCopy);
 
         ItemStack key = new ItemStack(ItemRegistry.KEY.get());
         NBTUtil.setLockKey(key, lockKey);

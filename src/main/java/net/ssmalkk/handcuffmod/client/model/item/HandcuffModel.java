@@ -19,5 +19,5 @@ public class HandcuffModel extends AnimatedGeoModel<HandcuffItem> {
 	@Override
 	public ResourceLocation getAnimationFileLocation(HandcuffItem animatable) {
 		return EntityResources.HANDCUFF_ANIMATION;
-	}
+}
 }

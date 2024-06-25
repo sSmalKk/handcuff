@@ -1,5 +1,7 @@
 {
   "itemGroup.handcuffMod": "Handcuff Mod Items",
+  "item.handcuffmod.handcuffsopen": "Handcuffs",
+  "item.handcuffmod.handcuff": "Handcuffs",
   "item.handcuffmod.handcuffs": "Handcuffs",
   "item.handcuffmod.key": "Key"
 }

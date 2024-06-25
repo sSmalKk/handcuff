@@ -36,20 +36,14 @@ public class RenderHandler {
         for (LivingEntity entity : mc.world.getEntitiesWithinAABB(LivingEntity.class, mc.player.getBoundingBox().grow(32.0))) {
             ItemStack chestItem = entity.getItemStackFromSlot(EquipmentSlotType.CHEST);
             if (chestItem.getItem() instanceof HandcuffItem) {
-                String lockedUUIDStr = String.valueOf(NBTUtil.getLockedEntity(chestItem));
-                Vector3d lockerPos = NBTUtil.getLockerPos(chestItem);
-                if (!lockedUUIDStr.isEmpty() && lockerPos != null) {
-                    try {
-                        UUID lockedUUID = UUID.fromString(lockedUUIDStr);
-                        LivingEntity lockedEntity = findEntityByUUID(mc.world, lockedUUID);
-                        if (lockedEntity != null) {
-                            double distance = entity.getPositionVec().distanceTo(lockedEntity.getPositionVec());
-                            if (distance <= 2.0) {
-                                renderLeash(entity, lockedEntity, event.getPartialTicks());
-                            }
+                UUID lockedUUID = NBTUtil.getLockedEntity(chestItem);
+                if (lockedUUID != null) {
+                    LivingEntity lockedEntity = findEntityByUUID(mc.world, lockedUUID);
+                    if (lockedEntity != null) {
+                        double distance = entity.getPositionVec().distanceTo(lockedEntity.getPositionVec());
+                        if (distance <= 32.0) {
+                            renderLeash(entity, lockedEntity, event.getPartialTicks());
                         }
-                    } catch (IllegalArgumentException e) {
-                        // Handle invalid UUID
                     }
                 }
             }
@@ -68,10 +62,13 @@ public class RenderHandler {
         MatrixStack matrixStack = new MatrixStack();
         matrixStack.push();
 
-        IVertexBuilder builder = buffer.getBuffer(RenderType.getLines());
-
+        // Get the matrix for the current position
         Matrix4f matrix = matrixStack.getLast().getMatrix();
 
+        // Define the vertex builder for the line
+        IVertexBuilder builder = buffer.getBuffer(RenderType.getLines());
+
+        // Add the vertices to the buffer
         builder.pos(matrix, (float) entityPos.x, (float) entityPos.y, (float) entityPos.z)
                 .color(255, 255, 255, 255)
                 .endVertex();
@@ -79,6 +76,7 @@ public class RenderHandler {
                 .color(255, 255, 255, 255)
                 .endVertex();
 
+        // Finish the buffer to ensure the line is rendered
         buffer.finish(RenderType.getLines());
         matrixStack.pop();
     }

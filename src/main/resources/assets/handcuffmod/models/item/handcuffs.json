@@ -1,6 +1,9 @@
 {
   "credit": "ssmalkk",
   "parent": "builtin/entity",
+  "textures": {
+    "0": "path/to/handcuff_item.png"
+  },
   "texture_size": [
     32,
     32
