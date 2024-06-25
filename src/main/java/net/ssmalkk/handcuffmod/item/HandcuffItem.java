@@ -24,9 +24,6 @@ import java.util.UUID;
 @Mod.EventBusSubscriber(modid = HandcuffMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class HandcuffItem extends GeoArmorItem implements IAnimatable {
     private final AnimationFactory factory = GeckoLibUtil.createFactory(this);
-    int distance = ConfigHandler.maxDistance.get();
-    boolean teleport = ConfigHandler.teleportOnBreak.get();
-    int teleportDistance = ConfigHandler.teleportDistance.get();
 
     public HandcuffItem(IArmorMaterial materialIn, EquipmentSlotType slot, Properties builder) {
         super(materialIn, slot, builder.group(HandcuffMod.handcuffModItemGroup));
@@ -71,6 +68,11 @@ public class HandcuffItem extends GeoArmorItem implements IAnimatable {
             if (lockedEntity != null) {
                 NBTUtil.setLockedPos(stack, lockedEntity.getPositionVec());
                 NBTUtil.setLockedDim(stack, lockedEntity.world.getDimensionKey().getLocation().toString());
+
+                // Teleportation logic
+                if (ConfigHandler.COMMON.teleportOnBreak.get() && isBeyondTeleportDistance(player.getPositionVec(), lockedEntity.getPositionVec(), ConfigHandler.COMMON.teleportDistance.get())) {
+                    teleportLockedEntity(player, lockedEntity, ConfigHandler.COMMON.teleportDistance.get());
+                }
             }
         }
     }
@@ -94,6 +96,31 @@ public class HandcuffItem extends GeoArmorItem implements IAnimatable {
                 NBTUtil.setLockedPos(stack, lockedEntity.getPositionVec());
                 NBTUtil.setLockedDim(stack, lockedEntity.world.getDimensionKey().getLocation().toString());
             }
+        }
+    }
+
+    private static boolean isBeyondTeleportDistance(Vector3d lockerPos, Vector3d lockedPos, int maxDistance) {
+        return lockerPos.distanceTo(lockedPos) > maxDistance;
+    }
+
+    private static void teleportLockedEntity(PlayerEntity player, LivingEntity lockedEntity, int maxDistance) {
+        Vector3d lockerPos = player.getPositionVec();
+        Vector3d lockedPos = lockedEntity.getPositionVec();
+
+        double x = clampToDistance(lockerPos.x, lockedPos.x, maxDistance);
+        double y = clampToDistance(lockerPos.y, lockedPos.y, maxDistance);
+        double z = clampToDistance(lockerPos.z, lockedPos.z, maxDistance);
+
+        lockedEntity.setPositionAndUpdate(x, y, z);
+    }
+
+    private static double clampToDistance(double lockerCoord, double lockedCoord, int maxDistance) {
+        if (lockedCoord > lockerCoord + maxDistance) {
+            return lockerCoord + maxDistance;
+        } else if (lockedCoord < lockerCoord - maxDistance) {
+            return lockerCoord - maxDistance;
+        } else {
+            return lockedCoord;
         }
     }
 }
