@@ -202,4 +202,47 @@ public class HandcuffsOpenItem extends Item implements IAnimatable {
         ItemStack offhandItem = player.getHeldItemOffhand();
         return offhandItem.getItem() instanceof HandcuffItem;
     }
+
+    @Override
+    public boolean hitEntity(ItemStack stack, LivingEntity target, LivingEntity attacker) {
+        if (attacker instanceof PlayerEntity) {
+            PlayerEntity player = (PlayerEntity) attacker;
+            if (!player.world.isRemote) {
+                lockEntityOnHit(player, target, stack);
+            }
+        }
+        return super.hitEntity(stack, target, attacker);
+    }
+
+    private void lockEntityOnHit(PlayerEntity player, LivingEntity target, ItemStack stack) {
+        if (hasHandcuffsInOffhand(player)) return;
+
+        ItemStack handcuff = new ItemStack(ItemRegistry.HANDCUFF.get());
+        handcuff.addEnchantment(Enchantments.BINDING_CURSE, 1);
+        String lockKey = generateLockKey();
+
+        UUID playerUUID = player.getUniqueID();
+        UUID targetUUID = target.getUniqueID();
+
+        NBTUtil.setLocker(handcuff, playerUUID);
+        NBTUtil.setLockedEntity(handcuff, targetUUID);
+        NBTUtil.setLockKey(handcuff, lockKey);
+        NBTUtil.setLockedFromBehind(handcuff, true);
+
+        ItemStack armorItem = target.getItemStackFromSlot(EquipmentSlotType.CHEST);
+        if (!armorItem.isEmpty()) target.entityDropItem(armorItem);
+
+        target.setItemStackToSlot(EquipmentSlotType.CHEST, handcuff);
+
+        ItemStack key = new ItemStack(ItemRegistry.KEY.get());
+        NBTUtil.setLockKey(key, lockKey);
+        NBTUtil.setLocker(key, playerUUID);
+        NBTUtil.setLockedEntity(key, targetUUID);
+
+        if (!player.inventory.addItemStackToInventory(key)) {
+            player.dropItem(key, false);
+        }
+
+        stack.shrink(1);
+    }
 }
