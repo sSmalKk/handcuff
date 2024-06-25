@@ -217,22 +217,22 @@ public class HandcuffsOpenItem extends Item implements IAnimatable {
     private void lockEntityOnHit(PlayerEntity player, LivingEntity target, ItemStack stack) {
         if (hasHandcuffsInOffhand(player)) return;
 
-        ItemStack handcuff = new ItemStack(ItemRegistry.HANDCUFF.get());
-        handcuff.addEnchantment(Enchantments.BINDING_CURSE, 1);
+        ItemStack handcuffs = new ItemStack(ItemRegistry.HANDCUFFS.get());
+        handcuffs.addEnchantment(Enchantments.BINDING_CURSE, 1);
         String lockKey = generateLockKey();
 
         UUID playerUUID = player.getUniqueID();
         UUID targetUUID = target.getUniqueID();
 
-        NBTUtil.setLocker(handcuff, playerUUID);
-        NBTUtil.setLockedEntity(handcuff, targetUUID);
-        NBTUtil.setLockKey(handcuff, lockKey);
-        NBTUtil.setLockedFromBehind(handcuff, true);
+        NBTUtil.setLocker(handcuffs, playerUUID);
+        NBTUtil.setLockedEntity(handcuffs, targetUUID);
+        NBTUtil.setLockKey(handcuffs, lockKey);
+        NBTUtil.setLockedFromBehind(handcuffs, true);
 
         ItemStack armorItem = target.getItemStackFromSlot(EquipmentSlotType.CHEST);
         if (!armorItem.isEmpty()) target.entityDropItem(armorItem);
 
-        target.setItemStackToSlot(EquipmentSlotType.CHEST, handcuff);
+        target.setItemStackToSlot(EquipmentSlotType.CHEST, handcuffs);
 
         ItemStack key = new ItemStack(ItemRegistry.KEY.get());
         NBTUtil.setLockKey(key, lockKey);
