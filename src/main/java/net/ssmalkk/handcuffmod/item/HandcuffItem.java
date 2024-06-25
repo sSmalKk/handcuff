@@ -11,6 +11,7 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.ssmalkk.handcuffmod.HandcuffMod;
+import net.ssmalkk.handcuffmod.config.ConfigHandler;
 import net.ssmalkk.handcuffmod.util.NBTUtil;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.manager.AnimationData;
@@ -23,6 +24,9 @@ import java.util.UUID;
 @Mod.EventBusSubscriber(modid = HandcuffMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class HandcuffItem extends GeoArmorItem implements IAnimatable {
     private final AnimationFactory factory = GeckoLibUtil.createFactory(this);
+    int distance = ConfigHandler.maxDistance.get();
+    boolean teleport = ConfigHandler.teleportOnBreak.get();
+    int teleportDistance = ConfigHandler.teleportDistance.get();
 
     public HandcuffItem(IArmorMaterial materialIn, EquipmentSlotType slot, Properties builder) {
         super(materialIn, slot, builder.group(HandcuffMod.handcuffModItemGroup));
