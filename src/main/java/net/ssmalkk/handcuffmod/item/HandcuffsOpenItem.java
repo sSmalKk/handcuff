@@ -45,9 +45,8 @@ public class HandcuffsOpenItem extends Item implements IAnimatable {
     }
 
     private void lockSelf(PlayerEntity player, ItemStack stack) {
-        // Check if the player already has handcuffs in the offhand
-        if (hasHandcuffsInOffhand(player)) {
-            return; // Cancel operation if already holding handcuffs in offhand
+        if (isAlreadyHandcuffed(player)) {
+            return; // Cancel operation if already handcuffed
         }
 
         ItemStack handcuffs = new ItemStack(ItemRegistry.HANDCUFFS.get());
@@ -118,7 +117,7 @@ public class HandcuffsOpenItem extends Item implements IAnimatable {
     }
 
     private void lockEntityWithMain(PlayerEntity player, LivingEntity target, ItemStack stack) {
-        if (hasHandcuffsInOffhand(player)) return;
+        if (isAlreadyHandcuffed(target)) return;
 
         ItemStack handcuff = new ItemStack(ItemRegistry.HANDCUFF.get());
         handcuff.addEnchantment(Enchantments.BINDING_CURSE, 1);
@@ -158,7 +157,7 @@ public class HandcuffsOpenItem extends Item implements IAnimatable {
     }
 
     private void lockEntityAlone(PlayerEntity player, LivingEntity target, ItemStack stack) {
-        if (hasHandcuffsInOffhand(player)) return;
+        if (isAlreadyHandcuffed(target)) return;
 
         ItemStack handcuffs = new ItemStack(ItemRegistry.HANDCUFFS.get());
         handcuffs.addEnchantment(Enchantments.BINDING_CURSE, 1);
@@ -173,7 +172,9 @@ public class HandcuffsOpenItem extends Item implements IAnimatable {
         NBTUtil.setLockedFromBehind(handcuffs, isPlayerBehindEntity(player, target));
 
         ItemStack armorItem = target.getItemStackFromSlot(EquipmentSlotType.CHEST);
-        if (!armorItem.isEmpty()) target.entityDropItem(armorItem);
+        if (!armorItem.isEmpty()) {
+            target.entityDropItem(armorItem);
+        }
 
         target.setItemStackToSlot(EquipmentSlotType.CHEST, handcuffs);
 
@@ -181,7 +182,9 @@ public class HandcuffsOpenItem extends Item implements IAnimatable {
         NBTUtil.setMain(handcuffsCopy, true);
 
         ItemStack playerArmorItem = player.getItemStackFromSlot(EquipmentSlotType.CHEST);
-        if (!playerArmorItem.isEmpty()) player.dropItem(playerArmorItem, false);
+        if (!playerArmorItem.isEmpty()) {
+            player.dropItem(playerArmorItem, false);
+        }
 
         player.setItemStackToSlot(EquipmentSlotType.CHEST, handcuffsCopy);
 
@@ -197,10 +200,9 @@ public class HandcuffsOpenItem extends Item implements IAnimatable {
         stack.shrink(1);
     }
 
-    // Function to check if the player already has handcuffs in the offhand
-    private boolean hasHandcuffsInOffhand(PlayerEntity player) {
-        ItemStack offhandItem = player.getHeldItemOffhand();
-        return offhandItem.getItem() instanceof HandcuffItem;
+    private boolean isAlreadyHandcuffed(LivingEntity entity) {
+        ItemStack chestItem = entity.getItemStackFromSlot(EquipmentSlotType.CHEST);
+        return chestItem.getItem() instanceof HandcuffItem || chestItem.getItem() instanceof HandcuffsItem;
     }
 
     @Override
@@ -215,7 +217,7 @@ public class HandcuffsOpenItem extends Item implements IAnimatable {
     }
 
     private void lockEntityOnHit(PlayerEntity player, LivingEntity target, ItemStack stack) {
-        if (hasHandcuffsInOffhand(player)) return;
+        if (isAlreadyHandcuffed(target)) return;
 
         ItemStack handcuffs = new ItemStack(ItemRegistry.HANDCUFFS.get());
         handcuffs.addEnchantment(Enchantments.BINDING_CURSE, 1);
@@ -246,3 +248,9 @@ public class HandcuffsOpenItem extends Item implements IAnimatable {
         stack.shrink(1);
     }
 }
+
+
+
+
+
+

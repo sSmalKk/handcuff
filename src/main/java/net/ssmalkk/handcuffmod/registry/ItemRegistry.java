@@ -3,6 +3,8 @@ package net.ssmalkk.handcuffmod.registry;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ArmorMaterial;
 import net.minecraft.item.Item;
+import net.minecraft.particles.BasicParticleType;
+import net.minecraft.particles.ParticleType;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -30,4 +32,8 @@ public class ItemRegistry {
 
 	public static final RegistryObject<Item> KEY = ITEMS.register("key",
 			() -> new KeyItem(new Item.Properties().group(HandcuffMod.handcuffModItemGroup).maxStackSize(1)));
+	public static final DeferredRegister<ParticleType<?>> PARTICLES = DeferredRegister.create(ForgeRegistries.PARTICLE_TYPES, HandcuffMod.MOD_ID);
+
+	public static final RegistryObject<BasicParticleType> CHAIN_PARTICLE = PARTICLES.register("chain_particle", () -> new BasicParticleType(true));
+
 }

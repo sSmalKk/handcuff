@@ -2,7 +2,6 @@ package net.ssmalkk.handcuffmod.event;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
@@ -13,17 +12,11 @@ import net.minecraft.util.ActionResultType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteract;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickItem;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickEmpty;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent.LeftClickBlock;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent.LeftClickEmpty;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteractSpecific;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.ssmalkk.handcuffmod.HandcuffMod;
 import net.ssmalkk.handcuffmod.item.HandcuffsItem;
+import net.ssmalkk.handcuffmod.registry.ItemRegistry;
 import net.ssmalkk.handcuffmod.util.NBTUtil;
 
 @Mod.EventBusSubscriber(modid = HandcuffMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
@@ -43,12 +36,12 @@ public class HandcuffEventHandler {
                 applyHandcuffedEffects(player);
 
                 // Bloqueia todas as interações se o jogador estiver algemado
-                if (event instanceof RightClickBlock ||
-                        event instanceof EntityInteract ||
-                        event instanceof RightClickItem ||
-                        event instanceof RightClickEmpty ||
-                        event instanceof LeftClickBlock ||
-                        event instanceof EntityInteractSpecific) {
+                if (event instanceof PlayerInteractEvent.RightClickBlock ||
+                        event instanceof PlayerInteractEvent.EntityInteract ||
+                        event instanceof PlayerInteractEvent.RightClickItem ||
+                        event instanceof PlayerInteractEvent.RightClickEmpty ||
+                        event instanceof PlayerInteractEvent.LeftClickBlock ||
+                        event instanceof PlayerInteractEvent.EntityInteractSpecific) {
 
                     // Verifica se o evento é cancelável antes de tentar cancelá-lo
                     if (event.isCancelable()) {
@@ -59,7 +52,6 @@ public class HandcuffEventHandler {
             }
         }
     }
-
 
     @SubscribeEvent
     public static void onGuiScreenOpen(GuiScreenEvent.InitGuiEvent.Post event) {
@@ -132,13 +124,28 @@ public class HandcuffEventHandler {
     }
 
     private static void applyHandcuffedEffects(PlayerEntity player) {
-        // Aplica Fadiga de Mineração II por 10 segundos
-        EffectInstance fatigueEffect = new EffectInstance(Effects.MINING_FATIGUE, 200, 1);
-        // Aplica Fraqueza II por 10 segundos
-        EffectInstance weaknessEffect = new EffectInstance(Effects.WEAKNESS, 200, 1);
+        // Verifica se o jogador está no modo criativo ou tem uma chave no inventário
+        if (player.isCreative() || checkForKeyInInventory(player)) {
+            // Desbloqueia o jogador automaticamente
+            player.setItemStackToSlot(EquipmentSlotType.CHEST, ItemStack.EMPTY);
+        } else {
+            // Aplica Fadiga de Mineração II por 10 segundos
+            EffectInstance fatigueEffect = new EffectInstance(Effects.MINING_FATIGUE, 200, 1);
+            // Aplica Fraqueza II por 10 segundos
+            EffectInstance weaknessEffect = new EffectInstance(Effects.WEAKNESS, 200, 1);
 
-        // Aplica os efeitos ao jogador
-        player.addPotionEffect(fatigueEffect);
-        player.addPotionEffect(weaknessEffect);
+            // Aplica os efeitos ao jogador
+            player.addPotionEffect(fatigueEffect);
+            player.addPotionEffect(weaknessEffect);
+        }
+    }
+
+    private static boolean checkForKeyInInventory(PlayerEntity player) {
+        for (ItemStack stack : player.inventory.mainInventory) {
+            if (stack.getItem() == ItemRegistry.KEY.get()) {
+                return true;
+            }
+        }
+        return false;
     }
 }
